@@ -1,0 +1,950 @@
+/* ==========================================================================
+   TACTICAL MILITARY TECH HUD DESIGN SYSTEM
+   ========================================================================== */
+
+:root {
+    --bg-base: #06090e;
+    --bg-panel: rgba(10, 15, 24, 0.85);
+    --bg-card: #0f1724;
+    --border-tech: rgba(0, 240, 255, 0.25);
+    --border-tech-bright: #00f0ff;
+    
+    --amber: #ff9d00;
+    --amber-glow: rgba(255, 157, 0, 0.3);
+    --cyan: #00f0ff;
+    --cyan-glow: rgba(0, 240, 255, 0.3);
+    --emerald: #00ff9d;
+    --crimson: #ff2a5f;
+    
+    --text-primary: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    
+    --font-head: 'Orbitron', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-tech: 'Rajdhani', sans-serif;
+    
+    --transition-fast: 0.15s ease;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-tech);
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Background Sci-Fi Grid Overlay */
+.hud-background-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* CRT Scanline Micro Overlay */
+.scanline-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.6;
+}
+
+/* App Container */
+.app-container {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Tactical Header Navbar */
+.tactical-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(10, 15, 24, 0.95);
+    border-bottom: 2px solid var(--border-tech);
+    box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.tactical-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--emerald);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--emerald);
+    animation: pulseGlow 1.5s infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.sys-code {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+}
+
+.tactical-title {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.tactical-title span {
+    color: var(--amber);
+}
+
+.tactical-sub {
+    font-family: var(--font-mono);
+    font-size: 0.725rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+}
+
+.header-telemetry {
+    display: flex;
+    gap: 1.5rem;
+}
+
+@media (max-width: 850px) {
+    .header-telemetry { display: none; }
+}
+
+.telem-box {
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0.4rem 0.8rem;
+    border-left: 2px solid var(--border-tech-bright);
+    font-family: var(--font-mono);
+}
+
+.telem-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+}
+
+.telem-val {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.val-cyan { color: var(--cyan); }
+.val-green { color: var(--emerald); }
+
+/* Main Workspace Grid */
+.hud-workspace {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    flex: 1;
+}
+
+@media (max-width: 980px) {
+    .hud-workspace {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tactical Panel Shell (Military HUD Box) */
+.hud-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-tech);
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.03);
+    backdrop-filter: blur(12px);
+}
+
+/* Corner Reticle Brackets */
+.panel-corner {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--cyan);
+    border-style: solid;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.corner-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.corner-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+.corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+.corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+/* Control Module (Left Panel) */
+.control-module {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    height: fit-content;
+}
+
+.module-title-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-bottom: 1px solid var(--border-tech);
+    padding-bottom: 0.75rem;
+}
+
+.title-icon {
+    font-size: 1.1rem;
+}
+
+.module-title-bar h2 {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.05em;
+    flex: 1;
+}
+
+.sys-tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--cyan);
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+/* Form Controls */
+.control-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.hud-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.hud-form-group label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+}
+
+.hud-select {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border-tech);
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: 0.825rem;
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.hud-select:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+/* Tactical Radio Buttons */
+.hud-radio-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+}
+
+.hud-radio-card input {
+    display: none;
+}
+
+.radio-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-tech);
+    color: var(--text-dim);
+    font-family: var(--font-head);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.hud-radio-card input:checked + .radio-btn {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+/* Slider Module */
+.hud-slider-module {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-tech);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.module-sub-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.live-indicator {
+    color: var(--emerald);
+    background: rgba(0, 255, 157, 0.1);
+    padding: 0.1rem 0.4rem;
+    border: 1px solid rgba(0, 255, 157, 0.3);
+}
+
+.hud-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.slider-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+.slider-title {
+    color: var(--text-dim);
+}
+
+.hud-val {
+    color: var(--amber);
+    font-weight: 700;
+}
+
+/* Custom Tactical Slider Track */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #09101d;
+    border: 1px solid var(--border-tech);
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--amber);
+    border: 1px solid #fff;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--amber-glow);
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+/* Toggle Switch */
+.hud-toggle-group {
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border-tech);
+}
+
+.hud-toggle-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    cursor: pointer;
+}
+
+.hud-toggle-label input { display: none; }
+
+.hud-toggle-switch {
+    width: 36px;
+    height: 18px;
+    background: #09101d;
+    border: 1px solid var(--border-tech);
+    position: relative;
+    transition: var(--transition-fast);
+}
+
+.hud-toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--text-muted);
+    top: 2px;
+    left: 2px;
+    transition: var(--transition-fast);
+}
+
+.hud-toggle-label input:checked + .hud-toggle-switch {
+    border-color: var(--cyan);
+    background: rgba(0, 240, 255, 0.2);
+}
+
+.hud-toggle-label input:checked + .hud-toggle-switch::after {
+    transform: translateX(18px);
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+}
+
+/* Primary Execution Button */
+.hud-btn-primary {
+    position: relative;
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, rgba(255, 157, 0, 0.8), rgba(217, 119, 6, 0.9));
+    color: #000;
+    font-family: var(--font-head);
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    transition: var(--transition-smooth);
+    box-shadow: 0 0 15px var(--amber-glow);
+}
+
+.hud-btn-primary:hover {
+    background: linear-gradient(135deg, #ff9d00, #f59e0b);
+    box-shadow: 0 0 25px rgba(255, 157, 0, 0.6);
+    transform: translateY(-1px);
+}
+
+/* Display Module (Right Panel) */
+.display-module {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 560px;
+}
+
+/* Tactical Dropzone */
+.hud-dropzone {
+    flex: 1;
+    border: 2px dashed var(--border-tech);
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.hud-dropzone:hover, .hud-dropzone.drag-over {
+    border-color: var(--cyan);
+    background: rgba(0, 240, 255, 0.05);
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.dropzone-radar {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.radar-circle {
+    position: absolute;
+    border: 1px solid var(--border-tech);
+    border-radius: 50%;
+}
+
+.circle-1 { width: 100%; height: 100%; }
+.circle-2 { width: 70%; height: 70%; }
+.circle-3 { width: 40%; height: 40%; }
+
+.radar-line {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.3) 0deg, transparent 60deg);
+    animation: radarSweep 3s linear infinite;
+}
+
+@keyframes radarSweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.radar-icon {
+    position: relative;
+    z-index: 5;
+    color: var(--cyan);
+}
+
+.dropzone-text h3 {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+}
+
+.dropzone-text p {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+}
+
+.tactical-chip {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--amber);
+    background: rgba(255, 157, 0, 0.1);
+    padding: 0.3rem 0.8rem;
+    border: 1px solid rgba(255, 157, 0, 0.3);
+}
+
+/* Comparator Toolbar */
+.tactical-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.view-mode-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.25rem;
+    border: 1px solid var(--border-tech);
+}
+
+.toolbar-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding: 0 0.4rem;
+}
+
+.hud-mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: var(--font-head);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.hud-mode-btn.active {
+    background: var(--cyan);
+    color: #000;
+}
+
+.action-group {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.hud-btn-secondary {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border-tech);
+    color: var(--text-primary);
+    font-family: var(--font-head);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.hud-btn-secondary:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.hud-btn-success {
+    background: var(--emerald);
+    color: #000;
+    font-family: var(--font-head);
+    font-size: 0.75rem;
+    font-weight: 900;
+    padding: 0.5rem 1.2rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 0 12px rgba(0, 255, 157, 0.4);
+    transition: var(--transition-smooth);
+}
+
+.hud-btn-success:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.8);
+}
+
+/* Split HUD Canvas */
+.split-view-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.hud-canvas {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    background: #03060a;
+    border: 1px solid var(--border-tech-bright);
+    overflow: hidden;
+    user-select: none;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.canvas-reticle {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    color: var(--cyan);
+    z-index: 15;
+    pointer-events: none;
+    text-shadow: 0 0 8px var(--cyan);
+}
+
+.reticle-tl { top: 6px; left: 8px; }
+.reticle-tr { top: 6px; right: 8px; }
+.reticle-bl { bottom: 6px; left: 8px; }
+.reticle-br { bottom: 6px; right: 8px; }
+
+.comp-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.img-before-layer { z-index: 1; }
+
+.after-clipped-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+    pointer-events: none;
+}
+
+.tactical-badge-tag {
+    position: absolute;
+    top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.3rem 0.7rem;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    z-index: 10;
+}
+
+.tag-raw {
+    left: 1rem;
+    color: var(--crimson);
+    border: 1px solid var(--crimson);
+}
+
+.tag-enhanced {
+    right: 1rem;
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+/* Tactical Divider Handle */
+.tactical-divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    margin-left: -20px;
+    z-index: 20;
+    cursor: ew-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.divider-glow-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--amber);
+    box-shadow: 0 0 12px var(--amber);
+}
+
+.tactical-handle {
+    width: 36px;
+    height: 36px;
+    background: #000;
+    border: 2px solid var(--amber);
+    color: var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 21;
+    box-shadow: 0 0 15px var(--amber-glow);
+    clip-path: polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%);
+}
+
+.handle-crosshair {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+.tactical-instruction {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0.5rem 0.9rem;
+    border-left: 3px solid var(--amber);
+}
+
+/* Dual Feed Side-by-Side */
+.side-view-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    height: 480px;
+}
+
+.dual-feed-box {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border-tech);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.feed-header {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.5rem 0.8rem;
+    text-align: center;
+}
+
+.raw-header {
+    background: rgba(255, 42, 95, 0.15);
+    color: var(--crimson);
+    border-bottom: 1px solid var(--crimson);
+}
+
+.enhanced-header {
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--cyan);
+    border-bottom: 1px solid var(--cyan);
+}
+
+.feed-img-wrapper {
+    flex: 1;
+    position: relative;
+    background: #020408;
+}
+
+.feed-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Telemetry Footer */
+.telemetry-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border-tech);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+.telem-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.telem-lbl { color: var(--text-muted); }
+.telem-val-accent { color: var(--amber); font-weight: 700; }
+.telem-val-cyan { color: var(--cyan); font-weight: 700; }
+
+.live-indicator-box {
+    color: var(--amber);
+    font-weight: 700;
+}
+
+.radar-mini-spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--amber);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(6, 9, 14, 0.92);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.tactical-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.hex-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid var(--border-tech);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    box-shadow: 0 0 15px var(--amber-glow);
+}
+
+.loader-title {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    color: var(--amber);
+    letter-spacing: 0.08em;
+}
+
+.loader-sub {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none !important;
+}

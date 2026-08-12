@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TACTICAL FONT ENHANCER // MILITARY TECH HUD</title>
+    <meta name="description" content="Sistem Penajam Teks & Super-Resolution Futuristik Berbasis Computer Vision & AI.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="hud-background-grid"></div>
+    <div class="scanline-overlay"></div>
+
+    <div class="app-container">
+        <!-- Tactical Header -->
+        <header class="tactical-header">
+            <div class="header-left">
+                <div class="tactical-badge">
+                    <span class="pulse-dot"></span>
+                    <span class="sys-code">SYS-ONLINE // PROTOCOL 09</span>
+                </div>
+                <h1 class="tactical-title">FONT-SHARP <span>TACTICAL HUD</span></h1>
+                <p class="tactical-sub">HIGH-DEFINITION OPTICAL RECON & TEXT ENHANCEMENT SUITE</p>
+            </div>
+
+            <div class="header-telemetry">
+                <div class="telem-box">
+                    <span class="telem-label">GRID COORD</span>
+                    <span class="telem-val">37.7749° N, 122.4194° W</span>
+                </div>
+                <div class="telem-box">
+                    <span class="telem-label">CORE ENGINE</span>
+                    <span class="telem-val val-cyan">LANCZOS-4 + CLAHE v2</span>
+                </div>
+                <div class="telem-box">
+                    <span class="telem-label">STATUS</span>
+                    <span class="telem-val val-green">SYSTEM READY</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main HUD Grid -->
+        <main class="hud-workspace">
+            <!-- Left Tactical Control Module -->
+            <aside class="hud-panel control-module">
+                <div class="panel-corner corner-tl"></div>
+                <div class="panel-corner corner-tr"></div>
+                <div class="panel-corner corner-bl"></div>
+                <div class="panel-corner corner-br"></div>
+
+                <div class="module-title-bar">
+                    <div class="title-icon">⚙️</div>
+                    <h2>ENHANCEMENT PARAMETERS</h2>
+                    <span class="sys-tag">MOD: ACTIVE</span>
+                </div>
+
+                <form id="upscaleForm" class="control-form">
+                    <!-- Preset Selector -->
+                    <div class="hud-form-group">
+                        <label for="preset">OPTICAL RECON PRESET</label>
+                        <select id="preset" name="preset" class="hud-select">
+                            <option value="text_focus" selected>[01] TEXT RECON // HIGH KETAJAMAN</option>
+                            <option value="hybrid_photo_text">[02] TACTICAL HYBRID // PHOTO + TEXT</option>
+                            <option value="binarized_text">[03] MONO DOC // ULTRA BINARIZED</option>
+                            <option value="custom">[04] MANUAL CALIBRATION</option>
+                        </select>
+                    </div>
+
+                    <!-- Scale Factor Selector -->
+                    <div class="hud-form-group">
+                        <label>AMPLIFICATION SCALE (SUPER-RES)</label>
+                        <div class="hud-radio-group">
+                            <label class="hud-radio-card">
+                                <input type="radio" name="scale_factor" value="2.0" checked>
+                                <span class="radio-btn">2X</span>
+                            </label>
+                            <label class="hud-radio-card">
+                                <input type="radio" name="scale_factor" value="3.0">
+                                <span class="radio-btn">3X</span>
+                            </label>
+                            <label class="hud-radio-card">
+                                <input type="radio" name="scale_factor" value="4.0">
+                                <span class="radio-btn">4X</span>
+                            </label>
+                            <label class="hud-radio-card">
+                                <input type="radio" name="scale_factor" value="8.0">
+                                <span class="radio-btn">8X</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Sliders Module -->
+                    <div class="hud-slider-module">
+                        <div class="module-sub-header">
+                            <span>REAL-TIME CALIBRATION</span>
+                            <span class="live-indicator">LIVE FEED</span>
+                        </div>
+
+                        <div class="hud-slider-group">
+                            <div class="slider-meta">
+                                <span class="slider-title">OPTICAL SHARPNESS</span>
+                                <span id="sharpnessVal" class="hud-val">2.0</span>
+                            </div>
+                            <input type="range" id="sharpness" name="sharpness" min="1.0" max="4.0" step="0.1" value="2.0">
+                        </div>
+
+                        <div class="hud-slider-group">
+                            <div class="slider-meta">
+                                <span class="slider-title">CONTOUR ENHANCER</span>
+                                <span id="edgeBoostVal" class="hud-val">1.8</span>
+                            </div>
+                            <input type="range" id="edge_boost" name="edge_boost" min="0.0" max="3.0" step="0.1" value="1.8">
+                        </div>
+
+                        <div class="hud-slider-group">
+                            <div class="slider-meta">
+                                <span class="slider-title">DYNAMIC CONTRAST</span>
+                                <span id="contrastVal" class="hud-val">1.3</span>
+                            </div>
+                            <input type="range" id="contrast" name="contrast" min="1.0" max="2.5" step="0.1" value="1.3">
+                        </div>
+
+                        <div class="hud-slider-group">
+                            <div class="slider-meta">
+                                <span class="slider-title">NOISE DAMPENING</span>
+                                <span id="denoiseVal" class="hud-val">1.0</span>
+                            </div>
+                            <input type="range" id="denoise" name="denoise" min="0.0" max="2.5" step="0.1" value="1.0">
+                        </div>
+
+                        <div class="hud-toggle-group">
+                            <label class="hud-toggle-label" for="binarize">
+                                <span>BINARIZE SIGNAL (PURE BLACK/WHITE)</span>
+                                <input type="checkbox" id="binarize" name="binarize" value="true">
+                                <span class="hud-toggle-switch"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnProcess" class="hud-btn-primary">
+                        <span class="btn-glitch"></span>
+                        <span class="btn-text">⚡ EXECUTE RE-ENHANCE</span>
+                    </button>
+                </form>
+            </aside>
+
+            <!-- Right Display Canvas -->
+            <section class="hud-panel display-module">
+                <div class="panel-corner corner-tl"></div>
+                <div class="panel-corner corner-tr"></div>
+                <div class="panel-corner corner-bl"></div>
+                <div class="panel-corner corner-br"></div>
+
+                <!-- Empty State Dropzone -->
+                <div id="dropzone" class="hud-dropzone">
+                    <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp, image/bmp" class="file-input">
+                    <div class="dropzone-radar">
+                        <div class="radar-line"></div>
+                        <div class="radar-circle circle-1"></div>
+                        <div class="radar-circle circle-2"></div>
+                        <div class="radar-circle circle-3"></div>
+                        <div class="radar-icon">
+                            <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                <polygon points="12 2 15 8 9 8 12 2"></polygon>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="dropzone-text">
+                        <h3>LOAD TARGET IMAGE FILE</h3>
+                        <p>DRAG & DROP BLURRY TEXT IMAGE OR CLICK TO BROWSE</p>
+                        <span class="tactical-chip">SUPPORTED: PNG // JPG // WEBP // BMP</span>
+                    </div>
+                </div>
+
+                <!-- Main Interactive Comparator Canvas -->
+                <div id="comparatorContainer" class="comparator-container hidden">
+                    <!-- Top Toolbar -->
+                    <div class="tactical-toolbar">
+                        <div class="view-mode-group">
+                            <span class="toolbar-label">VIEWPORT MODE:</span>
+                            <button id="btnModeSplit" class="hud-mode-btn active" data-mode="split">
+                                ↔ SPLIT HUD
+                            </button>
+                            <button id="btnModeSide" class="hud-mode-btn" data-mode="side">
+                                📑 DUAL FEED
+                            </button>
+                        </div>
+
+                        <div class="action-group">
+                            <button id="btnNewImage" class="hud-btn-secondary">📁 NEW TARGET</button>
+                            <a id="btnDownload" download="tactical-sharp-font.png" class="hud-btn-success">
+                                ⬇️ EXPORT IMAGE
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Split HUD Comparator -->
+                    <div id="splitViewContainer" class="split-view-container">
+                        <div class="hud-canvas" id="comparatorCanvas">
+                            <!-- Reticle Corner Frame Overlay -->
+                            <div class="canvas-reticle reticle-tl">┌</div>
+                            <div class="canvas-reticle reticle-tr">┐</div>
+                            <div class="canvas-reticle reticle-bl">└</div>
+                            <div class="canvas-reticle reticle-br">┘</div>
+
+                            <!-- Bottom Layer (Original) -->
+                            <img id="imgBefore" class="comp-img img-before-layer" src="" alt="RAW SIGNAL">
+                            <span class="tactical-badge-tag tag-raw">[RAW] ORIGINAL / BLURRED</span>
+
+                            <!-- Top Layer (Enhanced - Clipped via JS) -->
+                            <div id="afterClippedLayer" class="after-clipped-layer">
+                                <img id="imgAfter" class="comp-img img-after-layer" src="" alt="ENHANCED">
+                                <span class="tactical-badge-tag tag-enhanced">[ENHANCED] SHARPENED ⚡</span>
+                            </div>
+
+                            <!-- Interactive Slider Divider -->
+                            <div id="sliderDivider" class="tactical-divider" style="left: 50%;">
+                                <div class="divider-glow-line"></div>
+                                <div class="tactical-handle">
+                                    <div class="handle-crosshair">┼</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tactical-instruction">
+                            <span class="pulse-icon">📍</span>
+                            <span><b>HUD CONTROL:</b> Drag target slider <b>↔ LEFT / RIGHT</b> to inspect optical text sharpness delta.</span>
+                        </div>
+                    </div>
+
+                    <!-- Dual Feed View (Side-by-Side) -->
+                    <div id="sideViewContainer" class="side-view-container hidden">
+                        <div class="dual-feed-box">
+                            <div class="feed-header raw-header">FEED A // RAW UNPROCESSED</div>
+                            <div class="feed-img-wrapper">
+                                <img id="imgSideBefore" src="" alt="Raw">
+                            </div>
+                        </div>
+                        <div class="dual-feed-box">
+                            <div class="feed-header enhanced-header">FEED B // RECON ENHANCED</div>
+                            <div class="feed-img-wrapper">
+                                <img id="imgSideAfter" src="" alt="Enhanced">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry Footer -->
+                    <div id="statsFooter" class="telemetry-footer">
+                        <div class="telem-item">
+                            <span class="telem-icon">⚡</span>
+                            <span class="telem-lbl">LATENCY:</span>
+                            <span id="statTime" class="telem-val-accent">0.12s</span>
+                        </div>
+                        <div class="telem-item">
+                            <span class="telem-icon">📄</span>
+                            <span class="telem-lbl">TARGET FILE:</span>
+                            <span id="statFile" class="telem-val-cyan">target.png</span>
+                        </div>
+                        <div id="processingIndicator" class="telem-item live-indicator-box hidden">
+                            <span class="radar-mini-spinner"></span> UPDATING LIVE TELEMETRY...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tactical Loading Screen -->
+                <div id="loadingOverlay" class="loading-overlay hidden">
+                    <div class="tactical-loader">
+                        <div class="hex-spinner"></div>
+                        <h3 class="loader-title">CALIBRATING OPTICAL SENSORS...</h3>
+                        <p class="loader-sub">APPLYING SUPER-RES & CONTOUR RECONNAISSANCE</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
